@@ -19,16 +19,25 @@ Once deployed:
  - ssh into your cyclecloud server (i.e. ssh azureuser@<cc-srv-ip>) and follow the steps below
 
 ### Download and setup the project
-- cyclecloud initialize
-  - follow the command prompts
-- wget https://bmhpcwus2.blob.core.windows.net/share/cc-slurm/slurm-custom-v0.6.tgz
-- tar -xzvf slurm-custom-v0.6.tgz
-- cd slurm-custom
-- cyclecloud locker list ( To see what lockers you can upload to )
-- cyclecloud project upload "\<your-cyclecloud-locker\>"
-- cd templates
-- cyclecloud import_template slurm-ngc -f ./slurm-custom.txt -c slurm --force
- 
+Initialize Cycle Cloud
+```shell
+cyclecloud initialize
+```
+
+Before running the below code block change \<azure-storage\> to the correct locker name. To see the available lockers run
+- cyclecloud locker list 
+
+```shell
+cd ~/
+git clone -b 2.4.8 https://github.com/Azure/cyclecloud-slurm.git cc-slurm-ngc
+cyclecloud project fetch https://github.com/Azure/cyclecloud-slurm/releases/2.4.8 cc-slurm-ngc
+cd cc-slurm-ngc
+git submodule add https://github.com/JonShelley/cc-slurm-ngc.git
+./download_dependancies.sh
+cyclecloud project upload \<azure-storage\>  # Change this to your locker name
+cd templates
+cyclecloud import_template cc-slurm-ngc -f ./cc-slurm-ngc.txt -c slurm
+```
 
 _Note:_ At this point you are ready to deploy your cyclecloud cluster
 
