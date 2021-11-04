@@ -33,7 +33,11 @@ git clone -b 2.4.8 https://github.com/Azure/cyclecloud-slurm.git cc-slurm-ngc
 cyclecloud project fetch https://github.com/Azure/cyclecloud-slurm/releases/2.4.8 cc-slurm-ngc
 cd cc-slurm-ngc
 git submodule add https://github.com/JonShelley/cc-slurm-ngc.git
+cd cc-slurm-ngc
 ./download_dependancies.sh
+cp -R specs/* ../specs
+cp -R templates/* ../templates
+cd ..
 cyclecloud project upload \<azure-storage\>  # Change this to your locker name
 cd templates
 cyclecloud import_template cc-slurm-ngc -f ./cc-slurm-ngc.txt -c slurm
