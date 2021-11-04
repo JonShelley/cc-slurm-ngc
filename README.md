@@ -28,6 +28,7 @@ Before running the below code block change \<azure-storage\> to the correct lock
 - cyclecloud locker list 
 
 ```shell
+sudo yum install -y git
 cd ~/
 git clone -b 2.4.8 https://github.com/Azure/cyclecloud-slurm.git cc-slurm-ngc
 cyclecloud project fetch https://github.com/Azure/cyclecloud-slurm/releases/2.4.8 cc-slurm-ngc
