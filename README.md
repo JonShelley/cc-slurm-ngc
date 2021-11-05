@@ -76,9 +76,12 @@ _Note: Only tested with Ubuntu-HPC 18.04 marketplace image_
  _Note: If you don't want to deal with auto scaling when testing, add "SuspendExecParts=hpc" to /etc/slurm/slurm.conf and restart slurm (sudo systemctl restart slurmctld) once the scheduler has been deployed_
     
  Once the Scheduler and Compute VMs have been provisioned, ssh into the scheduler and follow the instructions below
- - mkdir -p /shared/data
- - cd /shared/data
- - git clone https://github.com/JonShelley/azure
+```shell
+sudo chmod 1777 /shared
+mkdir -p /shared/data
+cd /shared/data
+git clone https://github.com/JonShelley/azure
+```
  
 At this point the system should be ready to run some quick tests to verify that the system is working as expected
  - [HPL](https://github.com/JonShelley/azure/tree/master/benchmarking/NDv4/cc-slurm-ngc/hpl)
