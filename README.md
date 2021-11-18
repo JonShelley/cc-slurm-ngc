@@ -41,7 +41,7 @@ cd cc-slurm-ngc
 cp -R specs/* ../specs
 cp -R templates/* ../templates
 cd ..
-cyclecloud project upload <azure-storage>  # Change this to your locker name
+cyclecloud project upload "<azure-storage>"  # Change this to your locker name
 cd templates
 cyclecloud import_template cc-slurm-ngc -f ./cc-slurm-ngc.txt -c slurm
 ```
