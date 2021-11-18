@@ -1,0 +1,3 @@
+[submodule "cc-slurm-ngc"]
+	path = cc-slurm-ngc
+	url = https://github.com/JonShelley/cc-slurm-ngc.git

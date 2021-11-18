@@ -11,7 +11,10 @@ set -ex
 echo "\n---------------- Install Docker ----------------"
 cd /mnt/resource
 sudo apt update
-sudo apt install -y docker.io
+curl https://get.docker.com | sh && sudo systemctl --now enable docker
+#sudo dpkg -P moby-engine
+#sudo dpkg -P moby-cli
+#sudo apt install -y docker.io
 
 #### Install NV-DOCKER                                                       
 echo "\n---------------- Install NV-Docker ----------------"
@@ -30,7 +33,7 @@ distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
 curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | \
   sudo tee /etc/apt/sources.list.d/nvidia-docker.list
 sudo apt-get update
-sudo apt-get install -y nvidia-docker2
+sudo apt-get install -y nvidia-docker2=2.6.0-1
 sudo pkill -SIGHUP dockerd
 
 # Update the docker config file
