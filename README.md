@@ -25,8 +25,10 @@ cyclecloud initialize
 ```
 
 Before running the below code block change \<azure-storage\> to the correct locker name. To see the available lockers run
-- cyclecloud locker list 
-
+```shell
+cyclecloud locker list 
+```
+    
 ```shell
 sudo yum install -y git
 cd ~/
