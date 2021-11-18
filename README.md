@@ -1,76 +1,89 @@
+# Setup CycleCloud to run NGC containers using Slurm, Pyxis, and Enroot
 
-Slurm
-========
+## Requirements
+* CycleCloud 8.1+
 
-This project sets up an auto-scaling Slurm cluster
-Slurm is a highly configurable open source workload manager. See the [Slurm project site](https://www.schedmd.com/) for an overview.
+## Deploy the cyclecloud server and ssh into the VM
+_Note: Please follow [Cycle Cloud Quickstart guide](https://docs.microsoft.com/en-us/azure/cyclecloud/qs-install-marketplace?view=cyclecloud-8) with the below recommendations_
 
-## Slurm Clusters in CycleCloud versions >= 7.8
-Slurm clusters running in CycleCloud versions 7.8 and later implement an updated version of the autoscaling APIs that allows the clusters to utilize multiple nodearrays and partitions. To facilitate this functionality in Slurm, CycleCloud pre-populates the execute nodes in the cluster. Because of this, you need to run a command on the Slurm scheduler node after making any changes to the cluster, such as autoscale limits or VM types.
+__Recommendations:__
+- Create a new resource group (i.e cc-manager) and then select your newly created resource group and create your cyclecloud server.
+- Select Azure CycleCloud 8.1(or higher) and click create
+    - Fill out the requested information and deploy your CycleCloud server.
+- Server size: D4s_v4 (Recommended)
+- Create a uniquely named storage account (i.e. cc-storage-name) in your newly created resource group.
 
-### Making Cluster Changes
-The Slurm cluster deployed in CycleCloud contains a script that facilitates this. After making any changes to the cluster, run the following command as root on the Slurm scheduler node to rebuild the `slurm.conf` and update the nodes in the cluster:
+Once deployed:
+ - Go to the newly created Cycle Cloud server and record the ip address. 
+ - Login to the Cycle Cloud server in your Web Browser and do the initial setup of your Cycle Cloud server
+ - ssh into your cyclecloud server (i.e. ssh azureuser@<cc-srv-ip>) and follow the steps below
 
-```
-      $ sudo -i
-      # cd /opt/cycle/slurm
-      # ./cyclecloud_slurm.sh scale
-```
-
-### Removing all execute nodes
-As all the Slurm compute nodes have to be pre-created, it's required that all nodes in a cluster be completely removed when making big changes (such as VM type or Image). It is possible to remove all nodes via the UI, but the `cyclecloud_slurm.sh` script has a `remove_nodes` option that will remove any nodes that aren't currently running jobs.
-
-### Creating additional partitions
-The default template that ships with Azure CycleCloud has two partitions (`hpc` and `htc`), and you can define custom nodearrays that map directly to Slurm partitions. For example, to create a GPU partition, add the following section to your cluster template:
-
-```
-   [[nodearray gpu]]
-   MachineType = $GPUMachineType
-   ImageName = $GPUImageName
-   MaxCoreCount = $MaxGPUExecuteCoreCount
-   Interruptible = $GPUUseLowPrio
-   AdditionalClusterInitSpecs = $ExecuteClusterInitSpecs
-
-      [[[configuration]]]
-      slurm.autoscale = true
-      # Set to true if nodes are used for tightly-coupled multi-node jobs
-      slurm.hpc = false
-
-      [[[cluster-init cyclecloud/slurm:execute:2.0.1]]]
-      [[[network-interface eth0]]]
-      AssociatePublicIpAddress = $ExecuteNodesPublic
+### Download and setup the project
+Initialize Cycle Cloud
+```shell
+cyclecloud initialize
 ```
 
-## Troubleshooting
+Before running the below code block change \<azure-storage\> to the correct locker name. To see the available lockers run
+- cyclecloud locker list 
 
-### UID conflicts for Slurm and Munge users
+```shell
+sudo yum install -y git
+cd ~/
+git clone -b 2.4.8 https://github.com/Azure/cyclecloud-slurm.git cc-slurm-ngc
+cyclecloud project fetch https://github.com/Azure/cyclecloud-slurm/releases/2.4.8 cc-slurm-ngc
+cd cc-slurm-ngc
+git submodule add https://github.com/JonShelley/cc-slurm-ngc.git
+cd cc-slurm-ngc
+./download_dependancies.sh
+cp -R specs/* ../specs
+cp -R templates/* ../templates
+cd ..
+cyclecloud project upload <azure-storage>  # Change this to your locker name
+cd templates
+cyclecloud import_template cc-slurm-ngc -f ./cc-slurm-ngc.txt -c slurm
+```
 
-By default, this project uses a UID and GID of 11100 for the Slurm user and 11101 for the Munge user. If this causes a conflict with another user or group, these defaults may be overridden.
+_Note:_ At this point you are ready to deploy your cyclecloud cluster
 
-To override the UID and GID, click the edit button for both the `scheduler` node:
+## Deploy your cyclecloud cluster
+Open a web browser and go to your cyclecloud server (https://cc-srv-ip)
 
-![Alt](/images/schedulernodeedit.png "Edit Scheduler Node")
+Once you have logged in to your cyclecloud server:
+_Note:_ If this is your first time logging in you will need to fill out some information before you can proceed
 
-And for each nodearray, for example the `htc` array:
-![Alt](/images/nodearraytab.png "Edit nodearray")
+Use the following link to learn more about creating a cluster (https://docs.microsoft.com/en-us/azure/cyclecloud/how-to/create-cluster?view=cyclecloud-8)
 
- and add the following attributes at the end of the `Configuration` section:
+_Note: Only tested with Ubuntu-HPC 18.04 marketplace image_
+ 
+ Tips: 
+ - In the _Schedulers_ section, select slurm-ngc
+ - In the "Required Settings" tab
+   - Uncheck "autoscale" if you don't want VMs to automatically shut off when nodes sit idle 
+   - Change HPC VM Type to use ND 
+     - In the SKU Search bar type ND then select either ND96asr\_v4, or ND96amsr_A100_v4.
+  - Update value from Max HPC Cores to the desired # of VMs * # of cores/VM
+ - In the "Advanced Settings" tab
+   - Set the scheduler OS to use a custom image
+     - microsoft-dsvm:ubuntu-hpc:1804:latest
+   - Set the HPC OS to use a custom image
+     - microsoft-dsvm:ubuntu-hpc:1804:latest
+   - If you plan to use the HTC partitions, I would recommned that you use the same OS image as the others
+   
+ 
 
-
-![Alt](/images/nodearrayedit.png "Edit configuration")
-
-
-# Contributing
-
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.microsoft.com.
-
-When you submit a pull request, a CLA-bot will automatically determine whether you need to provide
-a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the instructions
-provided by the bot. You will only need to do this once across all repos using our CLA.
-
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
-
+ ## Testing out the deployment
+ _Note: If you don't want to deal with auto scaling when testing, add "SuspendExecParts=hpc" to /etc/slurm/slurm.conf and restart slurm (sudo systemctl restart slurmctld) once the scheduler has been deployed_
+    
+ Once the Scheduler and Compute VMs have been provisioned, ssh into the scheduler and follow the instructions below
+```shell
+sudo chmod 1777 /shared
+mkdir -p /shared/data
+cd /shared/data
+git clone https://github.com/JonShelley/azure
+```
+ 
+At this point the system should be ready to run some quick tests to verify that the system is working as expected
+ - [HPL](https://github.com/JonShelley/azure/tree/master/benchmarking/NDv4/cc-slurm-ngc/hpl)
+ - [NCCL - All Reduce](https://github.com/JonShelley/azure/tree/master/benchmarking/NDv4/cc-slurm-ngc/nccl)
+ - [Utility scripts](https://github.com/JonShelley/azure/tree/master/benchmarking/NDv4/cc-slurm-ngc/util_scripts)
