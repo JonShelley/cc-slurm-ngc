@@ -84,7 +84,12 @@ mkdir -p /shared/data
 cd /shared/data
 git clone https://github.com/JonShelley/azure
 ```
- 
+
+Next we need to configure the GPUs to get the best performance. To do this run the following on every compute VM using pdsh
+```shell
+sudo /shared/data/azure/benchmarking/NDv4/cc-slurm-ngc/util_scripts/configure_gpus.sh
+```
+    
 At this point the system should be ready to run some quick tests to verify that the system is working as expected
  - [HPL](https://github.com/JonShelley/azure/tree/master/benchmarking/NDv4/cc-slurm-ngc/hpl)
  - [NCCL - All Reduce](https://github.com/JonShelley/azure/tree/master/benchmarking/NDv4/cc-slurm-ngc/nccl)
