@@ -77,7 +77,7 @@ _Note: Only tested with Ubuntu-HPC 18.04 marketplace image_
  ## Testing out the deployment
  _Note: If you don't want to deal with auto scaling when testing, add "SuspendExecParts=hpc" to /etc/slurm/slurm.conf and restart slurm (sudo systemctl restart slurmctld) once the scheduler has been deployed_
     
- Once the Scheduler and Compute VMs have been provisioned, ssh into the scheduler and follow the instructions below
+ Once the Scheduler has been provisioned, ssh into the scheduler and follow the instructions below
 ```shell
 sudo chmod 1777 /shared
 mkdir -p /shared/data
@@ -85,7 +85,11 @@ cd /shared/data
 git clone https://github.com/JonShelley/azure
 ```
 
-Next we need to configure the GPUs to get the best performance. To do this run the following on every compute VM using pdsh
+At this point you are ready to deploy the VMs. Click on the Nodes tab and select the hpc template and you should see the bottom table fill up with VM names. Highlight the number that you would like to deploy, click on Actions -> Start
+    
+Once the VMs are deployed you will need to ssh in the scheduler and then you can explore the options below.
+
+First we need to configure the GPUs to get the best performance. To do this run the following on every compute VM using pdsh
 ```shell
 sudo /shared/data/azure/benchmarking/NDv4/cc-slurm-ngc/util_scripts/configure_gpus.sh
 ```
