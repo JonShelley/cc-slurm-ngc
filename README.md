@@ -75,7 +75,7 @@ _Note: Only tested with Ubuntu-HPC 18.04 marketplace image_
  
 
  ## Testing out the deployment
- _Note: If you don't want to deal with auto scaling when testing, add "SuspendExecParts=hpc" to /etc/slurm/slurm.conf and restart slurm (sudo systemctl restart slurmctld) once the scheduler has been deployed_
+ _Note: If you don't want to deal with auto scaling when testing, add "SuspendExcParts=hpc" to /etc/slurm/slurm.conf and restart slurm (sudo systemctl restart slurmctld) once the scheduler has been deployed_
     
  Once the Scheduler has been provisioned, ssh into the scheduler and follow the instructions below
 ```shell
