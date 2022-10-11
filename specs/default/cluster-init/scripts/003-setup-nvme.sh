@@ -14,7 +14,8 @@ else
     mdadm  --stop /dev/md*
     mdadm --create /dev/md128 -f --run --level 0 --raid-devices $NVME_DISKS $NVME_DISKS_NAME
     mkfs.xfs -f /dev/md128
-    mount /dev/md128 /mnt/resource_nvme
+    echo  "/dev/md128 /mnt/resource_nvme xfs defaults 0 0" >> /etc/fstab
+    mount /mnt/resource_nvme
 fi
 
 chmod 1777 /mnt/resource_nvme
